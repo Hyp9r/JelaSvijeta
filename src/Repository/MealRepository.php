@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Meal;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -52,15 +53,28 @@ class MealRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('m');
         $qb->select('m', 't')->leftJoin('m.tags', 't');
+
+        //check category
         if ($filters['category'] !== null) {
-            $qb->andWhere('m.category = :category')
-                ->setParameter('category', $filters['category']);
-        }
-        if ($filters['tags'] !== null) {
-            $qb->andWhere('t = :tags')
-                ->setParameter('tags', $filters['tags']);
+            if ($filters['category'] === "NULL") {
+                $qb->andWhere('m.category IS NULL');
+            } elseif ($filters['category'] === "!NULL") {
+                $qb->andWhere('m.category IS NOT NULL');
+            } else {
+                $qb->andWhere('m.category = :category')
+                    ->setParameter('category', $filters['category']);
+            }
         }
 
+        //check tags
+        if ($filters['tags'] !== null) {
+            //split $filters['tags'] into array.
+            $tags = explode(',', $filters['tags']);
+            for ($i = 0; $i < count($tags); $i++) {
+                $qb->innerJoin('m.tags', 't' . $i, Join::WITH, 't' . $i . '= :tag' . $i);
+                $qb->setParameter('tag' . $i, $tags[$i]);
+            }
+        }
         return $qb->getQuery()->getResult();
     }
 }
