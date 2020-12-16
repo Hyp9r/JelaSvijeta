@@ -52,7 +52,37 @@ class MealRepository extends ServiceEntityRepository
     public function filter(array $filters)
     {
         $qb = $this->createQueryBuilder('m');
-        $qb->select('m', 't')->leftJoin('m.tags', 't');
+
+        //check with parameter
+        if ($filters['with'] !== null) {
+            //select
+            $qb->select('m');
+            //split $filters['with'] into array
+            $with = explode(',', $filters['with']);
+            foreach ($with as $parameter){
+                switch ($parameter){
+                    case 'ingredients':
+                        //hydrate the object
+                        $qb->leftJoin('m.ingredients', 'i');
+                        $qb->addSelect('i');
+                        break;
+                    case 'tags':
+                        //hydrate the object
+                        $qb->leftJoin('m.tags', 't');
+                        $qb->addSelect('t');
+                        break;
+                    case 'category':
+                        //hydrate the object
+                        $qb->leftJoin('m.category', 'c');
+                        $qb->addSelect('c');
+                        break;
+                    default:
+                        dd('Wrong parameter');
+                }
+            }
+        } else {
+            $qb->select('m.id', 'm.name', 'm.description', 'm.status');
+        }
 
         //check category
         if ($filters['category'] !== null) {
@@ -75,6 +105,8 @@ class MealRepository extends ServiceEntityRepository
                 $qb->setParameter('tag' . $i, $tags[$i]);
             }
         }
-        return $qb->getQuery()->getResult();
+
+        //
+        return $qb->getQuery()->getArrayResult();
     }
 }

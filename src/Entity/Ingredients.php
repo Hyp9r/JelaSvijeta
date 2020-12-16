@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Gedmo\Mapping\Annotation as Gedmo;
 use App\Repository\IngredientsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,6 +19,7 @@ class Ingredients
     private $id;
 
     /**
+     * @Gedmo\Translatable
      * @ORM\Column(type="string", length=255)
      */
     private $title;

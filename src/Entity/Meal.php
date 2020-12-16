@@ -6,6 +6,7 @@ use App\Repository\MealRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass=MealRepository::class)
@@ -20,11 +21,13 @@ class Meal
     private $id;
 
     /**
+     * @Gedmo\Translatable
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
+     * @Gedmo\Translatable
      * @ORM\Column(type="string", length=255)
      */
     private $description;
@@ -45,10 +48,19 @@ class Meal
     private $ingredients;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Tags::class, inversedBy="meals")
-     * @ORM\JoinTable(name="MealTags")
+     * @ORM\ManyToMany(targetEntity=Tags::class)
+     * @ORM\JoinTable(name="MealTags",
+     *     joinColumns={@ORM\JoinColumn(name="meal_id", referencedColumnName="id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="tags_id", referencedColumnName="id")})
      */
     private $tags;
+
+
+    /**
+     * @Gedmo\Timestampable (on="create")
+     * @ORM\Column (type="datetime")
+     */
+    private $timestamp;
 
     public function __construct()
     {
@@ -155,5 +167,15 @@ class Meal
         $this->tags->removeElement($tag);
 
         return $this;
+    }
+
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    public function setTimestamp($timestamp)
+    {
+        $this->timestamp = $timestamp;
     }
 }

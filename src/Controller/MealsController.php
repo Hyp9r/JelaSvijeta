@@ -32,11 +32,11 @@ class MealsController extends AbstractController
     }
 
     /**
-     * @Route("/api/meals", name="api_meals_filtered")
+     * @Route("/api/meals", name="api_meals_filtered", methods={"GET"})
      * @param Request $request
      * @return JsonResponse
      */
-    public function getMeals(Request $request)
+    public function getMeals(Request $request): JsonResponse
     {
         $perPage = $request->get('per_page');
         $page = $request->get('page');
@@ -47,7 +47,7 @@ class MealsController extends AbstractController
         $diffTime = $request->get('diff_time');
 
         //Data to return as response
-        $filters = ['category' => $category, 'tags' => $tags];
+        $filters = ['category' => $category, 'tags' => $tags, 'with' => $with, 'lang' => $lang, 'diff_time' => $diffTime];
         $data = $this->mealService->getMeals($filters);
 
         //Pagination
